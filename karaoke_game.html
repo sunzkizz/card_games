@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>yooohooo karaoke game - made by aya</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,800&family=Figtree:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#1b1820;--panel:#25212c;--line:#3a3444;--text:#e8e2d8;--mute:#a59fae;--card:#ece4d6;--ink:#2a2320;--brass:#c79a4a;--en:#6d4a7a;--tl:#2f6d69;
+color-scheme:dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--text);font:400 1rem/1.5 Figtree,system-ui,sans-serif;min-height:100vh}
+main{max-width:640px;margin:0 auto;padding:24px 18px 40px}
+h1{font:800 clamp(2rem,8vw,3rem)/1 Fraunces,Georgia,serif;letter-spacing:.06em;margin:8px 0 18px;text-align:center}
+.stats{display:flex;justify-content:space-between;gap:8px;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:10px 16px;margin-bottom:16px}
+.stats div{text-align:center;flex:1}.stats b{display:block;font:600 1.4rem Fraunces,Georgia,serif}.stats span{color:var(--mute);font-size:.85rem}
+.filters{display:grid;gap:10px;margin-bottom:22px}
+.row{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.row>span{color:var(--mute);font-size:.9rem;min-width:84px}
+.chip{background:transparent;color:var(--text);border:1px solid var(--line);border-radius:999px;padding:6px 14px;font:inherit;font-size:.9rem;cursor:pointer}
+.chip[aria-pressed=true]{background:var(--brass);border-color:var(--brass);color:#1b1820;font-weight:600}
+.stage{perspective:1000px}
+.card{background:var(--card);color:var(--ink);border-radius:18px;min-height:340px;padding:22px 24px;display:flex;flex-direction:column;justify-content:space-between;box-shadow:0 18px 40px rgba(0,0,0,.45),0 2px 0 #cfc5b3 inset;position:relative;overflow:hidden}
+.card.deal{animation:deal .5s ease-out}
+@keyframes deal{from{transform:rotateX(-80deg) translateY(-20px);opacity:.2}to{transform:none;opacity:1}}
+.top{display:flex;justify-content:space-between;align-items:center;min-height:32px}
+.lang{color:#fff;font-size:.85rem;font-weight:600;padding:4px 12px;border-radius:999px}
+.lang.en{background:var(--en)}.lang.tl{background:var(--tl)}
+.pts{display:flex;align-items:center;gap:6px;font-weight:600;font-size:.9rem}
+.pip{width:12px;height:12px;border-radius:50%;border:2px solid var(--ink);opacity:.9}.pip.on{background:var(--ink)}
+.word{font:800 clamp(2.4rem,12vw,4.6rem)/1.05 Fraunces,Georgia,serif;text-align:center;overflow-wrap:anywhere;padding:20px 0}
+.hint{text-align:center;color:#6b5f55;font-size:.95rem;min-height:1.5em}
+.bar{height:6px;background:#d8cdb9;border-radius:6px;margin-top:12px;overflow:hidden}
+.bar i{display:block;height:100%;width:100%;background:var(--brass);transform-origin:left}
+.actions{display:flex;gap:10px;margin-top:18px}
+.btn{flex:1;padding:14px;border-radius:12px;border:1px solid var(--line);background:var(--panel);color:var(--text);font:600 1rem Figtree,sans-serif;cursor:pointer}
+.btn.main{background:var(--brass);border-color:var(--brass);color:#1b1820}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.chip:focus-visible,.btn:focus-visible{outline:3px solid #e8d3a5;outline-offset:2px}
+.add{margin-top:28px;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px}
+.add h2{font:600 1.15rem Fraunces,Georgia,serif;margin:0 0 12px}
+.add .f{display:flex;flex-wrap:wrap;gap:8px}
+.add input,.add select{background:var(--bg);color:var(--text);border:1px solid var(--line);border-radius:10px;padding:10px 12px;font:inherit;min-width:0}
+.add input{flex:2 1 160px}.add select{flex:1 1 100px}
+.add .btn{flex:0 0 auto;padding:10px 18px}
+.mine{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+.mine span{display:inline-flex;align-items:center;gap:4px;background:var(--bg);border:1px solid var(--line);border-radius:999px;padding:4px 6px 4px 12px;font-size:.9rem}
+.mine button{background:none;border:0;color:var(--mute);cursor:pointer;font-size:1.1rem;line-height:1;padding:2px 6px}
+.msg{color:var(--mute);font-size:.85rem;margin-top:8px;min-height:1.2em}
+input:focus-visible,select:focus-visible,.mine button:focus-visible{outline:3px solid #e8d3a5;outline-offset:2px}
+.note{color:var(--mute);font-size:.85rem;text-align:center;margin-top:18px}
+@media (prefers-reduced-motion:reduce){.card.deal{animation:none}}
+</style>
+</head>
+<body>
+<main>
+<h1>KARAOKE GAME</h1>
+<div class="stats" aria-live="polite">
+<div><b id="score">0</b><span>Score</span></div>
+<div><b id="prog">0/0</b><span>Cards</span></div>
+<div><b id="best">0</b><span>Best</span></div>
+</div>
+<div class="filters">
+<div class="row"><span>Language</span><div class="row" id="langs"></div></div>
+<div class="row"><span>Points</span><div class="row" id="lvls"></div></div>
+</div>
+<div class="stage">
+<div class="card" id="card">
+<div class="top"><span class="lang" id="lang" hidden></span><span class="pts" id="pts"></span></div>
+<div class="word" id="word">Ready?</div>
+<div><div class="hint" id="hint">Pick a mode, then deal a card.</div><div class="bar"><i id="fill"></i></div></div>
+</div>
+</div>
+<div class="actions">
+<button class="btn" id="skip" disabled>Skip</button>
+<button class="btn" id="start" disabled>Start timer</button>
+<button class="btn main" id="sang" disabled>Next</button>
+</div>
+<button class="btn main" id="deal" style="width:100%;margin-top:10px">Deal first card</button>
+<section class="add" aria-labelledby="addh">
+<h2 id="addh">Add your own words</h2>
+<div class="f">
+<input id="newWord" type="text" maxlength="30" placeholder="Type a word" aria-label="Word">
+<select id="newLang" aria-label="Language"><option value="en">English</option><option value="tl">Tagalog</option></select>
+<select id="newPts" aria-label="Points"><option value="1">1 pt</option><option value="2">2 pts</option><option value="3" selected>3 pts</option><option value="4">4 pts</option><option value="5">5 pts</option></select>
+<button class="btn main" id="addBtn">Add word</button>
+</div>
+<div class="msg" id="addMsg" role="status"></div>
+<div class="mine" id="mine"></div>
+</section>
+<p class="note">Press Start timer when you are ready, then sing any lyric with the word. Rarer words are worth more points (1 to 5).</p>
+</main>
+<script>
+var RAW={
+en:{
+1:"love heart night baby dream day time life home eyes sky light song dance fire rain together forever kiss smile world tonight music hold",
+2:"memory angel shadow whisper tears wonder gravity paradise promise believe goodbye lonely thunder ocean summer mirror stars wings secret freedom distance moonlight broken remember",
+3:"harmony desire surrender echo melody horizon faded wander silhouette endless tender restless blossom embrace heartbeat illusion twilight reckless lullaby ghost yearning ashes serenity",
+4:"serenade solitude nostalgia wistful melancholy eternity labyrinth crescendo kaleidoscope ember haunted oblivion vagabond cascade mirage luminous requiem tumult sanctuary reverie fleeting ardent forlorn",
+5:"ephemeral halcyon petrichor sonorous ineffable effervescent quixotic incandescent elegy sempiternal susurrus evanescent mellifluous lachrymose ethereal lambent nepenthe apotheosis insouciance tempestuous verdant cerulean obsidian redolent"},
+tl:{
+1:"mahal puso gabi araw buhay tayo ikaw sana langit awit sayaw ulan bituin mundo ngiti tahanan pangarap kanta luha liwanag hangin dagat kamay mata",
+2:"pag-ibig paalam kailanman habang walang hanggang bulaklak kaibigan alaala pagsinta sandali pagmamahal kalayaan pag-asa saya lungkot lambing sinta giliw hiling tadhana panaginip aking muli",
+3:"kislap hinagpis pananabik dalangin pagsuyo paglisan luwalhati bulong alon nagdaan kumukupas yakap tinig karamay hantungan saksi tuwa salamin paalala panata ligaya kaluluwa hinaharap ulap",
+4:"sinisinta pusikit madilim dalisay naglalagablab bihag panimdim nagpupumiglas nangungulila kalumbayan kahapon lumbay himagsik sumpa balisa daluyong nagmamakaawa pagbabalik ligalig hilahil hinahanap kaluwalhatian",
+5:"kapighatian dalamhati pighati luningning halimuyak karimlan alindog hamog sinag paghihirap dumadagundong humihibik kariktan lagalag nagdurusa kasiphayuan pagkasiphayo sagisag pangungulila kagila-gilalas dinaramdam pumapailanlang naglalambing"}};
+var ALL=[];
+Object.keys(RAW).forEach(function(l){for(var p=1;p<=5;p++){RAW[l][p].split(" ").forEach(function(w){ALL.push({w:w,l:l,p:p})})}});
+var $=function(i){return document.getElementById(i)};
+var lang="mix",lvl=0,deck=[],idx=0,score=0,cur=null,tmr=null,TIME=12000,t0=0,live=false,best=0;
+try{best=+localStorage.getItem("kg-best")||0}catch(e){}
+$("best").textContent=best;
+var custom=[],done=false;
+try{custom=JSON.parse(localStorage.getItem("kg-custom")||"[]")}catch(e){}
+custom.forEach(function(c){ALL.push({w:c.w,l:c.l,p:c.p,custom:true})});
+function saveCustom(){try{localStorage.setItem("kg-custom",JSON.stringify(custom))}catch(e){}}
+function passes(c){return(lang==="mix"||(lang==="custom"?c.custom:c.l===lang))&&(!lvl||c.p===lvl)}
+function chips(id,opts,get,set){var box=$(id);box.innerHTML="";opts.forEach(function(o){var b=document.createElement("button");b.className="chip";b.textContent=o[1];b.setAttribute("aria-pressed",String(get()===o[0]));b.onclick=function(){set(o[0]);chips(id,opts,get,set);reset()};box.appendChild(b)})}
+function drawChips(){
+chips("langs",[["mix","Mixed"],["en","English"],["tl","Tagalog"],["custom","My words"]],function(){return lang},function(v){lang=v});
+chips("lvls",[[0,"Any"],[1,"1"],[2,"2"],[3,"3"],[4,"4"],[5,"5"]],function(){return lvl},function(v){lvl=v});
+}
+function shuffle(a){for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t}return a}
+function reset(){
+clearInterval(tmr);live=false;score=0;idx=0;
+done=false;deck=shuffle(ALL.filter(passes));
+$("score").textContent=0;$("prog").textContent="0/"+deck.length;
+$("lang").hidden=true;$("pts").innerHTML="";$("word").textContent="Ready?";$("hint").textContent="Pick a mode, then deal a card.";
+$("fill").style.transform="scaleX(1)";
+$("sang").disabled=$("skip").disabled=$("start").disabled=true;$("deal").hidden=false;$("deal").textContent="Deal first card";
+}
+function next(){
+clearInterval(tmr);
+if(idx>=deck.length){finish();return}
+cur=deck[idx++];live=true;
+var lg=$("lang");lg.hidden=false;lg.className="lang "+cur.l;lg.textContent=cur.l==="en"?"English":"Tagalog";
+var pips="";for(var i=1;i<=5;i++)pips+='<span class="pip'+(i<=cur.p?" on":"")+'"></span>';
+$("pts").innerHTML=pips+"<span>"+cur.p+(cur.p===1?" pt":" pts")+"</span>";
+$("word").textContent=cur.w;$("hint").textContent="Press Start timer when you are ready";
+$("prog").textContent=idx+"/"+deck.length;
+$("sang").disabled=$("skip").disabled=false;$("deal").hidden=true;
+var c=$("card");c.classList.remove("deal");void c.offsetWidth;c.classList.add("deal");
+$("fill").style.transform="scaleX(1)";$("start").disabled=false;
+}
+function startTimer(){
+if(!live)return;clearInterval(tmr);$("start").disabled=true;$("hint").textContent="Sing it!";t0=Date.now();
+tmr=setInterval(function(){
+var left=Math.max(0,1-(Date.now()-t0)/TIME);
+$("fill").style.transform="scaleX("+left+")";
+if(left<=0){clearInterval(tmr);live=false;$("hint").textContent="Time's up";$("sang").disabled=$("skip").disabled=$("start").disabled=true;setTimeout(next,900)}
+},50);
+}
+function finish(){
+live=false;$("lang").hidden=true;$("pts").innerHTML="";
+$("word").textContent=score+" pts";$("hint").textContent="Deck finished. Shuffle and play again.";
+$("sang").disabled=$("skip").disabled=$("start").disabled=true;$("deal").hidden=false;$("deal").textContent="Shuffle and replay";done=true;
+if(score>best){best=score;$("best").textContent=best;try{localStorage.setItem("kg-best",best)}catch(e){}}
+$("fill").style.transform="scaleX(0)";
+idx=deck.length;
+}
+$("deal").onclick=function(){
+if(!deck.length){$("hint").textContent="No words match. Add some below or change the filters.";return}
+if(done){reset()}next()};
+$("start").onclick=startTimer;
+function drawMine(){
+var m=$("mine");m.innerHTML="";
+custom.forEach(function(c,i){
+var s=document.createElement("span");s.appendChild(document.createTextNode(c.w+" ("+(c.l==="en"?"English":"Tagalog")+", "+c.p+")"));
+var b=document.createElement("button");b.textContent="\u00d7";b.setAttribute("aria-label","Remove "+c.w);
+b.onclick=function(){
+custom.splice(i,1);saveCustom();
+var o=ALL.filter(function(x){return x.custom&&x.w===c.w&&x.l===c.l})[0];
+if(o){ALL.splice(ALL.indexOf(o),1);deck=deck.slice(0,idx).concat(deck.slice(idx).filter(function(x){return x!==o}));$("prog").textContent=idx+"/"+deck.length}
+drawMine()};
+s.appendChild(b);m.appendChild(s)})}
+function addWord(){
+var w=$("newWord").value.trim(),l=$("newLang").value,msg=$("addMsg");
+if(!w){msg.textContent="Type a word first.";return}
+if(ALL.some(function(c){return c.w.toLowerCase()===w.toLowerCase()&&c.l===l})){msg.textContent="That word is already in the deck.";return}
+var c={w:w,l:l,p:+$("newPts").value,custom:true};
+ALL.push(c);custom.push({w:c.w,l:c.l,p:c.p});saveCustom();
+if(!live&&(idx===0||done)){reset()}
+else if(passes(c)){deck.splice(idx+Math.floor(Math.random()*(deck.length-idx+1)),0,c);$("prog").textContent=idx+"/"+deck.length}
+msg.textContent="Added "+w+".";$("newWord").value="";drawMine()}
+$("addBtn").onclick=addWord;
+$("newWord").onkeydown=function(e){if(e.key==="Enter")addWord()};
+$("sang").onclick=function(){if(!live)return;score+=cur.p;$("score").textContent=score;if(score>best){best=score;$("best").textContent=best;try{localStorage.setItem("kg-best",best)}catch(e){}}next()};
+$("skip").onclick=function(){if(live)next()};
+drawChips();reset();drawMine();
+</script>
+</body>
+</html>
